@@ -1,11 +1,10 @@
-function solve() {
+function myList() {
     return {
         elements: [],
-        size: this.elements.length,
+        size: 0,
         add: function (element) {
-            this.elements
-                .push(element)
-                .sort((a, b) => a - b);
+            this.elements.push(element);
+            this.elements.sort((a, b) => a - b);
             this.size++;
         },
         remove: function (index) {
