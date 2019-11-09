@@ -1,49 +1,37 @@
-function solve() {
+function getInfo() {
+    const input = document.getElementById('stopId');
+    const stopName = document.getElementById('stopName');
+    const busesUl = document.getElementById('buses');
 
-    const departBtn = document.getElementById('depart');
-    const arriveBtn = document.getElementById('arrive');
-    const span = document.getElementsByClassName('info')[0];
+    busesUl.innerHTML = '';
 
-    let nextStop = 'depot';
-    let currentStop = '';
+    fetch(`https://judgetests.firebaseio.com/businf/${input.value}.json`)
+        .then(chechForErrors)
+        .then(parseRespond)
+        .then(updateInfo)
+        .catch(handleError)
 
-    function depart() {
-        fetch(`https://judgetests.firebaseio.com/schedulej/${nextStop}.json`)
-            .then(res => {
-                if(res.ok === false){
-                    errorHandling();
-                }
-                return res;
-            })
-            .then(res => res.json())
-            .then(action)
-            .catch(errorHandling)
-
-        function errorHandling(){
-            span.textContent = 'Error';
-            departBtn.disabled = true;
-            arriveBtn.disabled = true;
-            throw new Error('Invalid data received!');
+    function chechForErrors(res) {
+        if (res.ok === false) {
+            handleError(res);
         }
-        function action({ name, next }) {
-            nextStop = next;
-            currentStop = name;
-            span.textContent = `Next stop ${name}`;
-            departBtn.disabled = true;
-            arriveBtn.disabled = false;
-        }
+        return res;
     }
-    function arrive() {
-        span.textContent = `Arriving at ${currentStop}`;
-        currentStop = nextStop;
-        departBtn.disabled = false;
-        arriveBtn.disabled = true;
+    function parseRespond(res) {
+        return res.json();
     }
-
-    return {
-        depart,
-        arrive
-    };
+    function updateInfo({ name, buses }) {
+        stopName.innerText = name;
+        Object
+            .entries(buses)
+            .forEach(([busId, time]) => {
+                let li = document.createElement('li');
+                li.innerText = `Bus ${busId} arrives in ${time} min.`;
+                busesUl.appendChild(li);
+            });
+    }
+    function handleError(res) {
+        stopName.textContent = 'Error';
+        throw new Error( `Invalid URL`);
+    }
 }
-
-let result = solve();
