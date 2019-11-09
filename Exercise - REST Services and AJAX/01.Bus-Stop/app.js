@@ -13,7 +13,7 @@ function getInfo() {
 
     function chechForErrors(res) {
         if (res.ok === false) {
-            handleError(res);
+            throw new Error(`${res.status} - ${res.statusText}`);
         }
         return res;
     }
@@ -32,6 +32,6 @@ function getInfo() {
     }
     function handleError(res) {
         stopName.textContent = 'Error';
-        throw new Error( `Invalid URL`);
+        console.log(res);
     }
 }
