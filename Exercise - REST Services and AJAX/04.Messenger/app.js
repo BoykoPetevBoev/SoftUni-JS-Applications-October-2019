@@ -33,7 +33,7 @@ function attachEvents() {
             .catch(handleErrors);
     }
     function handleErrors(err) {
-        console.log(err)
+        console.log(err);
     }
 }
 
