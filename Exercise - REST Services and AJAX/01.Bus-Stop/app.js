@@ -30,8 +30,7 @@ function getInfo() {
                 busesUl.appendChild(li);
             });
     }
-    function handleError(res) {
-        stopName.textContent = 'Error';
-        console.log(res);
+    function handleError(err) {
+        console.error(err);
     }
 }
