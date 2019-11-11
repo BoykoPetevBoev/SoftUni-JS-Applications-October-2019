@@ -18,11 +18,14 @@ function attachEvents() {
             })
         }
         fetch('https://rest-messanger.firebaseio.com/messanger.json', headers)
+            .then()
             .catch(handleErrors);
     }
     function showMessages() {
-        fetch('https://rest-messanger.firebaseio.com/messanger.json')
+        fetch('https://rest-messanger.firebaseio.com/mmessanger.json')
+            .then(chechForErrors)
             .then(res => res.json())
+            .then(chechForErrors)
             .then(data => {
                 textarea.value = '';
                 Object.values(data)
@@ -32,8 +35,17 @@ function attachEvents() {
             })
             .catch(handleErrors);
     }
+    function chechForErrors(res) {
+        if (res === null || res === undefined) {
+            throw new Error('Invalid JSON data!');
+        }
+        else if (res.ok === false) {
+            throw new Error(`${res.status} - ${res.statusText}`);
+        }
+        return res;
+    }
     function handleErrors(err) {
-        console.log(err);
+        console.error(err);
     }
 }
 
