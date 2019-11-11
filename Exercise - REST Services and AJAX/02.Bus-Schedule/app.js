@@ -8,22 +8,22 @@ function solve() {
     let currentStop = '';
 
     function depart() {
-        fetch(`https://judgetests.firebaseio.com/schedulej/${nextStop}.json`)
-            .then(res => {
-                if(res.ok === false){
-                    errorHandling();
-                }
-                return res;
-            })
+        fetch(`https://judgetests.firebaseio.com/schedule/${nextStop}.json`)
+            .then(chechForErrors)
             .then(res => res.json())
             .then(action)
             .catch(errorHandling)
-
-        function errorHandling(){
+        function chechForErrors(res) {
+            if (res.ok === false) {
+                throw new Error(`${res.status} - ${res.statusText}`);
+            }
+            return res;
+        }
+        function errorHandling(err) {
             span.textContent = 'Error';
             departBtn.disabled = true;
             arriveBtn.disabled = true;
-            throw new Error('Invalid data received!');
+            console.error(err);
         }
         function action({ name, next }) {
             nextStop = next;
@@ -39,7 +39,6 @@ function solve() {
         departBtn.disabled = false;
         arriveBtn.disabled = true;
     }
-
     return {
         depart,
         arrive
