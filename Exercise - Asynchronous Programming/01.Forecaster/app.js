@@ -86,11 +86,12 @@ function attachEvents() {
         }
         return element;
     }
-    function handleError(){
+    function handleError(err){
+        console.error('Invalid input');
         getDomElements().$divForecast().style.display = 'block';
         const error = createElement('div', ['forecasts'], 'Error!');
         const errorMsg = createElement('div', ['forecasts'], 'Invalid input!');
-        
+
         clearData(getDomElements().$divCurrent());
         clearData(getDomElements().$divUpcoming());
         appendNewElements(getDomElements().$divCurrent(), error);
