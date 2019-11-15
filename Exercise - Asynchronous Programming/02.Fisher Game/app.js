@@ -1,4 +1,4 @@
-import { fetchData } from './fetchRequest.js';
+//import { fetchData } from './fetchRequest.js';
 function attachEvents() {
     class Catch {
         constructor(angler, weight, species, location, bait, captureTime) {
@@ -92,6 +92,16 @@ function attachEvents() {
                 return arr;
             }, []);
     }
+    async function fetchData(url, headers) {
+        try {
+            const res = await fetch(url, headers);
+            console.log(`Response: ${res.status} - ${res.statusText}`);
+            const data = await res.json();
+            return data;
+        }
+        catch{
+            console.error;
+        }
+    }
 }
 attachEvents();
-
