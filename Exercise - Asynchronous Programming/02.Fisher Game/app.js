@@ -1,4 +1,4 @@
-//import { fetchData } from './fetchRequest.js';
+import { fetchData } from './fetchRequest.js';
 function attachEvents() {
     class Catch {
         constructor(angler, weight, species, location, bait, captureTime) {
@@ -10,12 +10,6 @@ function attachEvents() {
             this.captureTime = captureTime;
         }
     }
-    const deleteBtn = () => document.getElementsByClassName('delete');
-    const updateBtn = () => document.getElementsByClassName('update');
-    const loadBtn = () => document.getElementsByClassName('load');
-    const addBtn = () => document.getElementsByClassName('add');
-    const buttons = [...deleteBtn(), ...updateBtn(), ...loadBtn(), ...addBtn()];
-
     const buttonsFunctionality = {
         Add: () => createCatch(),
         Load: () => loadCatch(),
@@ -28,9 +22,11 @@ function attachEvents() {
 
     const baseURL = 'https://fisher-game.firebaseio.com/catches';
 
-    buttons.map(btn => btn.addEventListener('click', function () {
-        buttonsFunctionality[this.textContent](this);
-    }));
+    document.getElementById('body').addEventListener('click', function (e) {
+        if(typeof buttonsFunctionality[e.target.textContent] === 'function'){
+            buttonsFunctionality[e.target.textContent](e.target);
+        }
+    });
 
     function loadCatch() {
         const url = `${baseURL}.json`;
@@ -42,7 +38,6 @@ function attachEvents() {
         Object.keys(data).forEach(code => {
             fillInfo(code, data[code]);
         });
-        buttons.push(...deleteBtn(), ...updateBtn());
     }
     function fillInfo(code, obj) {
         let domElement = $template.cloneNode(true);
@@ -60,20 +55,18 @@ function attachEvents() {
     function createCatch() {
         const url = `${baseURL}.json`;
         createRequestInfo(url, 'POST', $catchForm);
-        loadCatch();
     }
     function updateCatch(btn) {
         const code = btn.parentNode.getAttribute("data-id");
         const url = `${baseURL}/${code}.json`;
         createRequestInfo(url, 'PUT', btn.parentNode);
-        loadCatch();
     }
     function deleteCatch(btn) {
         const headers = { method: 'DELETE' };
         const code = btn.parentNode.getAttribute("data-id");
         const url = `${baseURL}/${code}.json`;
         fetchData(url, headers);
-        loadCatch();
+        buttonsFunctionality.Load();
     }
     function createRequestInfo(url, method, parent) {
         const values = getInfo(parent);
@@ -83,6 +76,7 @@ function attachEvents() {
             body: JSON.stringify(body)
         };
         fetchData(url, headers);
+        buttonsFunctionality.Load();
     }
     function getInfo(div) {
         return Array
@@ -91,17 +85,6 @@ function attachEvents() {
                 arr.push(input.value);
                 return arr;
             }, []);
-    }
-    async function fetchData(url, headers) {
-        try {
-            const res = await fetch(url, headers);
-            console.log(`Response: ${res.status} - ${res.statusText}`);
-            const data = await res.json();
-            return data;
-        }
-        catch{
-            console.error;
-        }
     }
 }
 attachEvents();
