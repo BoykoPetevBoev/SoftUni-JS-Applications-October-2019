@@ -20,18 +20,31 @@ function attachEvents() {
     const $mainDiv = document.getElementById('catches');
     const $template = $mainDiv.children[0];
 
-    const baseURL = 'https://fisher-game.firebaseio.com/catches';
-
     document.getElementById('body').addEventListener('click', function (e) {
-        if(typeof buttonsFunctionality[e.target.textContent] === 'function'){
+        if (typeof buttonsFunctionality[e.target.textContent] === 'function') {
             buttonsFunctionality[e.target.textContent](e.target);
         }
     });
-
+    function createCatch() {
+        const values = getInfo($catchForm);
+        const body = new Catch(...values);
+        fetchData().post(body).catch(console.error);
+        loadCatch();
+    }
+    function updateCatch(btn) {
+        const code = btn.parentNode.getAttribute("data-id");
+        const values = getInfo(btn.parentNode);
+        const body = new Catch(...values);
+        fetchData().put(body, code).catch(console.error);
+        loadCatch();
+    }
+    function deleteCatch(btn) {
+        const code = btn.parentNode.getAttribute("data-id");
+        fetchData().del(code).catch(console.error);
+        loadCatch();
+    }
     function loadCatch() {
-        const url = `${baseURL}.json`;
-        const headers = { method: 'GET' }
-        fetchData(url, headers).then(extractData);
+        fetchData().get().then(handleErrors).then(extractData).catch(console.error);
     }
     function extractData(data) {
         $mainDiv.innerHTML = '';
@@ -44,39 +57,13 @@ function attachEvents() {
         domElement.setAttribute('data-id', code);
         Array.from(domElement.children).map(el => {
             if (el.tagName === 'INPUT') {
-                el.value = obj[el.className]
+                el.value = obj[el.className];
             }
         })
         appendDomElement($mainDiv, domElement);
     }
     function appendDomElement(parent, childs) {
         parent.appendChild(childs);
-    }
-    function createCatch() {
-        const url = `${baseURL}.json`;
-        createRequestInfo(url, 'POST', $catchForm);
-    }
-    function updateCatch(btn) {
-        const code = btn.parentNode.getAttribute("data-id");
-        const url = `${baseURL}/${code}.json`;
-        createRequestInfo(url, 'PUT', btn.parentNode);
-    }
-    function deleteCatch(btn) {
-        const headers = { method: 'DELETE' };
-        const code = btn.parentNode.getAttribute("data-id");
-        const url = `${baseURL}/${code}.json`;
-        fetchData(url, headers);
-        buttonsFunctionality.Load();
-    }
-    function createRequestInfo(url, method, parent) {
-        const values = getInfo(parent);
-        const body = new Catch(...values);
-        const headers = {
-            method: method,
-            body: JSON.stringify(body)
-        };
-        fetchData(url, headers);
-        buttonsFunctionality.Load();
     }
     function getInfo(div) {
         return Array
@@ -86,5 +73,12 @@ function attachEvents() {
                 return arr;
             }, []);
     }
+    function handleErrors(res){
+        if(typeof res !== 'object'){
+            throw new Error(`Invalid responce data!`);
+        }
+        return res;
+    }
 }
 attachEvents();
+
