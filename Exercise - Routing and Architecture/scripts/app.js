@@ -1,13 +1,20 @@
 import { get, post, put, del } from './requester.js';
 
 (() => {
-    const additionalInformation = {
+    const templatesPaths = {
         header: './templates/common/header.hbs',
         footer: './templates/common/footer.hbs',
-        loginForm: './templates/login/loginForm.hbs'
+        loginForm: './templates/login/loginForm.hbs',
+        team: './templates/catalog/team.hbs',
+        registerForm: './templates/register/registerForm.hbs',
+        createForm: './templates/create/createForm.hbs',
+        teamMember: './templates/catalog/teamMember.hbs',
+        teamControls: './templates/catalog/teamControls.hbs',
+        editForm: './templates/edit/editForm.hbs'
     }
     const app = Sammy('#main', function () {
         this.use('Handlebars', 'hbs');
+
         this.get('index.html', loadHomePage);
         this.get('#/', loadHomePage);
         this.get('#/home', loadHomePage);
@@ -18,6 +25,12 @@ import { get, post, put, del } from './requester.js';
         this.post('#/register', registerProcess);
         this.get('#/logout', logout);
         this.get('#/catalog', loadCatalogPage);
+        this.get('#/create', loadCreateForm);
+        this.post('#/create', createTeamProcess);
+        this.get('#/catalog/:id', loadTeamPage);
+        this.get('#/join/:id', joinTeamProcess);
+        this.get('#/edit/:id', loadEditPage);
+        this.post('#/edit/:id', updateNewInfo);
     });
     function saveUserInfo(res) {
         sessionStorage.setItem('username', res['username']);
@@ -29,27 +42,26 @@ import { get, post, put, del } from './requester.js';
     }
     function loadHomePage(ctx) {
         getUserInfo(ctx);
-        this.loadPartials(additionalInformation)
+        this.loadPartials(templatesPaths)
             .then(function () {
                 this.partial('./templates/home/home.hbs');
             });
     }
     function loadAboutPage(ctx) {
         getUserInfo(ctx);
-        this.loadPartials(additionalInformation)
+        this.loadPartials(templatesPaths)
             .then(function () {
                 this.partial('./templates/about/about.hbs');
             });
     }
     function loadLoginPage(ctx) {
-        this.loadPartials(additionalInformation)
+        this.loadPartials(templatesPaths)
             .then(function () {
                 this.partial('./templates/login/loginPage.hbs');
             });
     }
     function loadRegisterPage(ctx) {
-        additionalInformation['registerForm'] = './templates/register/registerForm.hbs';
-        this.loadPartials(additionalInformation)
+        this.loadPartials(templatesPaths)
             .then(function () {
                 this.partial('./templates/register/registerPage.hbs');
             });
@@ -58,16 +70,13 @@ import { get, post, put, del } from './requester.js';
         getUserInfo(ctx);
         get('appdata', 'teams', 'Kinvey')
             .then(data => {
-                ctx['name'] = data.name;
-                ctx['comment'] = data.comment;
+                ctx.teams = data;
+                this.loadPartials(templatesPaths)
+                    .then(function () {
+                        this.partial('./templates/catalog/teamCatalog.hbs');
+                    });
             })
             .catch(console.error)
-        additionalInformation['teamControls'] = './templates/catalog/teamControls.hbs';
-        additionalInformation['teamMember'] = './templates/catalog/teamMember.hbs';
-        this.loadPartials(additionalInformation)
-            .then(function () {
-                this.partial('./templates/catalog/details.hbs');
-            });
     }
     function loginProcess(ctx) {
         const { username, password } = ctx.params;
@@ -91,6 +100,61 @@ import { get, post, put, del } from './requester.js';
     function logout(ctx) {
         sessionStorage.clear();
         ctx.redirect('#/home');
+    }
+    function loadCreateForm(ctx) {
+        getUserInfo(ctx);
+        this.loadPartials(templatesPaths)
+            .then(function () {
+                this.partial('./templates/create/createPage.hbs');
+            });
+    }
+    function createTeamProcess(ctx) {
+        const { name, comment } = ctx.params
+        post('appdata', 'teams', 'Kinvey', { name, comment })
+            .then(res => ctx.redirect('#/catalog'))
+            .catch(console.error)
+    }
+    function loadTeamPage(ctx) {
+        getUserInfo(ctx);
+
+        const id = ctx.params.id;
+
+        get('appdata', `teams/${id}`, 'Kinvey')
+            .then(data => {
+                ctx.name = data.name;
+                ctx.comment = data.comment;
+                ctx.members = data.members;
+                ctx.isAuthor = data._id === id;
+                ctx.teamId = data._id;
+                ctx.isOnTeam = data.members.includes(id);
+                this.loadPartials(templatesPaths)
+                    .then(function () {
+                        this.partial('./templates/catalog/details.hbs');
+                    })
+            })
+    }
+    function joinTeamProcess(ctx) {
+        const id = ctx.params.id;
+        const newUser = { username: sessionStorage.username };
+        get('appdata', `teams/${id}`, 'Kinvey')
+            .then(data => {
+                data.members.push(newUser)
+                put('appdata', `teams/${id}`, 'Kinvey', data)
+            })
+            .then(res => this.redirect(`#/catalog`))
+            .catch(console.error)
+    }
+    function loadEditPage(ctx) {
+        getUserInfo(ctx);
+        this.loadPartials(templatesPaths)
+            .then(function () {
+                this.partial('./templates/edit/editPage.hbs');
+            })
+    }
+    function updateNewInfo(ctx) {
+        console.log(ctx.params.id)    
+        const { id, name, comment } = ctx.params;
+        console.log(id, name, comment)
     }
     app.run();
 })()
