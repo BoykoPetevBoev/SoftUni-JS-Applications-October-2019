@@ -15,146 +15,137 @@ import { get, post, put, del } from './requester.js';
     const app = Sammy('#main', function () {
         this.use('Handlebars', 'hbs');
 
-        this.get('index.html', loadHomePage);
-        this.get('#/', loadHomePage);
-        this.get('#/home', loadHomePage);
-        this.get('#/about', loadAboutPage);
-        this.get('#/login', loadLoginPage);
-        this.post('#/login', loginProcess);
-        this.get('#/register', loadRegisterPage);
-        this.post('#/register', registerProcess);
-        this.get('#/logout', logout);
-        this.get('#/catalog', loadCatalogPage);
-        this.get('#/create', loadCreateForm);
-        this.post('#/create', createTeamProcess);
-        this.get('#/catalog/:id', loadTeamPage);
-        this.get('#/join/:id', joinTeamProcess);
-        this.get('#/edit/:id', loadEditPage);
-        this.post('#/edit/:id', updateNewInfo);
+        this.get('index.html', function (ctx) {
+            loadPage(ctx, './templates/home/home.hbs');
+        });
+        this.get('#/', function (ctx) {
+            loadPage(ctx, './templates/home/home.hbs');
+        });
+        this.get('#/home', function (ctx) {
+            loadPage(ctx, './templates/home/home.hbs');
+        });
+        this.get('#/about', function (ctx) {
+            loadPage(ctx, './templates/about/about.hbs');
+        });
+        this.get('#/login', function (ctx) {
+            loadPage(ctx, './templates/login/loginPage.hbs');
+        });
+        this.get('#/register', function (ctx) {
+            loadPage(ctx, './templates/register/registerPage.hbs');
+        });
+        this.get('#/create', function (ctx) {
+            loadPage(ctx, './templates/create/createPage.hbs');
+        });
+        this.get('#/edit/:id', function (ctx) {
+            loadPage(ctx, './templates/edit/editPage.hbs');
+        });
+
+        this.post('#/login', function (ctx) {
+            const { username, password } = ctx.params;
+            postRequests(ctx, ['user', 'login', 'Basic', { username, password }], '#/home');
+        });
+        this.post('#/create', function (ctx) {
+            const { name, comment } = ctx.params;
+            const members = []
+            postRequests(ctx, ['appdata', 'teams', 'Kinvey', { name, comment, members }], '#/catalog');
+        });
+        this.post('#/register', function (ctx) {
+            const { username, password, repeatPassword } = ctx.params;
+            if (username.length >= 3 && password.length >= 3 && password === repeatPassword) {
+                postRequests(ctx, ['user', '', 'Basic', { username, password }], '#/home')
+            }
+            else {
+                alert('Invalid input parameters!');
+            }
+        });
+        this.get('#/logout', function (ctx) {
+            sessionStorage.clear();
+            ctx.redirect('#/home');
+        });
+        this.get('#/catalog', function (ctx) {
+            getRequests(ctx, ['appdata', 'teams', 'Kinvey'], loadCatalogPage);
+        });
+        this.get('#/catalog/:id', function (ctx) {
+            const id = ctx.params.id;
+            getRequests(ctx, ['appdata', `teams/${id}`, 'Kinvey'], loadTeamPage);
+        });
+        this.get('#/leave/:id', function (ctx) {
+            const id = ctx.params.id;
+            getRequests(ctx, ['appdata', `teams/${id}`, 'Kinvey'], leaveTeam, id);
+        });
+        this.get('#/join/:id', function (ctx) {
+            const id = ctx.params.id;
+            getRequests(ctx, ['appdata', `teams/${id}`, 'Kinvey'], joinTeam, id);
+        });
+        this.post('#/edit', function (ctx) {
+            const id = ctx.app.last_location[1].split('/').pop();
+            getRequests(ctx, ['appdata', `teams/${id}`, 'Kinvey'], updateTeamInfo, id);
+        });
     });
     function saveUserInfo(res) {
-        sessionStorage.setItem('username', res['username']);
-        sessionStorage.setItem('authtoken', res._kmd['authtoken']);
+        if (res.username && res._kmd.authtoken) {
+            sessionStorage.setItem('username', res['username']);
+            sessionStorage.setItem('authtoken', res._kmd['authtoken']);
+            sessionStorage.setItem('id', res._id);
+        }
     }
     function getUserInfo(ctx) {
         ctx.loggedIn = sessionStorage.getItem('authtoken');
         ctx.username = sessionStorage.getItem('username');
+        ctx.userID = sessionStorage.getItem('id');
     }
-    function loadHomePage(ctx) {
+    function loadPage(ctx, path) {
         getUserInfo(ctx);
-        this.loadPartials(templatesPaths)
+        ctx.loadPartials(templatesPaths)
             .then(function () {
-                this.partial('./templates/home/home.hbs');
+                this.partial(path);
             });
     }
-    function loadAboutPage(ctx) {
-        getUserInfo(ctx);
-        this.loadPartials(templatesPaths)
-            .then(function () {
-                this.partial('./templates/about/about.hbs');
-            });
-    }
-    function loadLoginPage(ctx) {
-        this.loadPartials(templatesPaths)
-            .then(function () {
-                this.partial('./templates/login/loginPage.hbs');
-            });
-    }
-    function loadRegisterPage(ctx) {
-        this.loadPartials(templatesPaths)
-            .then(function () {
-                this.partial('./templates/register/registerPage.hbs');
-            });
-    }
-    function loadCatalogPage(ctx) {
-        getUserInfo(ctx);
-        get('appdata', 'teams', 'Kinvey')
-            .then(data => {
-                ctx.teams = data;
-                this.loadPartials(templatesPaths)
-                    .then(function () {
-                        this.partial('./templates/catalog/teamCatalog.hbs');
-                    });
-            })
-            .catch(console.error)
-    }
-    function loginProcess(ctx) {
-        const { username, password } = ctx.params;
-        post('user', 'login', 'Basic', { username, password })
+    function postRequests(ctx, params, path) {
+        post(...params)
             .then(res => saveUserInfo(res))
-            .then(res => ctx.redirect('#/home'))
+            .then(res => ctx.redirect(path))
             .catch(console.error)
     }
-    function registerProcess(ctx) {
-        const { username, password, repeatPassword } = ctx.params;
-        if (typeof username === 'string' && password === repeatPassword) {
-            post('user', '', 'Basic', { username, password })
-                .then(res => saveUserInfo(res))
-                .then(res => ctx.redirect('#/home'))
-                .catch(console.error)
-        }
-        else {
-            alert('Invalid input parameters!');
-        }
-    }
-    function logout(ctx) {
-        sessionStorage.clear();
-        ctx.redirect('#/home');
-    }
-    function loadCreateForm(ctx) {
-        getUserInfo(ctx);
-        this.loadPartials(templatesPaths)
-            .then(function () {
-                this.partial('./templates/create/createPage.hbs');
-            });
-    }
-    function createTeamProcess(ctx) {
-        const { name, comment } = ctx.params
-        post('appdata', 'teams', 'Kinvey', { name, comment })
-            .then(res => ctx.redirect('#/catalog'))
+    function getRequests(ctx, params, fn, id) {
+        get(...params)
+            .then(data => fn(ctx, data, id))
             .catch(console.error)
     }
-    function loadTeamPage(ctx) {
-        getUserInfo(ctx);
-
-        const id = ctx.params.id;
-
-        get('appdata', `teams/${id}`, 'Kinvey')
-            .then(data => {
-                ctx.name = data.name;
-                ctx.comment = data.comment;
-                ctx.members = data.members;
-                ctx.isAuthor = data._id === id;
-                ctx.teamId = data._id;
-                ctx.isOnTeam = data.members.includes(id);
-                this.loadPartials(templatesPaths)
-                    .then(function () {
-                        this.partial('./templates/catalog/details.hbs');
-                    })
-            })
+    function putRequest(ctx, params, path) {
+        put(...params)
+            .then(res => ctx.redirect(path))
+            .catch(console.error)
     }
-    function joinTeamProcess(ctx) {
-        const id = ctx.params.id;
+    function loadCatalogPage(ctx, data) {
+        ctx.teams = data;
+        loadPage(ctx, './templates/catalog/teamCatalog.hbs');
+    }
+    function loadTeamPage(ctx, data) {
+        getUserInfo(ctx);
+        ctx.name = data.name;
+        ctx.comment = data.comment;
+        ctx.members = data.members;
+        ctx.isAuthor = data._acl.creator === ctx.userID;
+        ctx.teamId = data._id;
+        ctx.isOnTeam = data.members.find(obj => obj.username === ctx.username);
+        loadPage(ctx, './templates/catalog/details.hbs');
+    }
+    function joinTeam(ctx, data, id) {
         const newUser = { username: sessionStorage.username };
-        get('appdata', `teams/${id}`, 'Kinvey')
-            .then(data => {
-                data.members.push(newUser)
-                put('appdata', `teams/${id}`, 'Kinvey', data)
-            })
-            .then(res => this.redirect(`#/catalog`))
-            .catch(console.error)
+        data.members.push(newUser);
+        putRequest(ctx,['appdata', `teams/${id}`, 'Kinvey', data], `#/catalog/${id}`);
     }
-    function loadEditPage(ctx) {
-        getUserInfo(ctx);
-        this.loadPartials(templatesPaths)
-            .then(function () {
-                this.partial('./templates/edit/editPage.hbs');
-            })
+    function leaveTeam(ctx, data, id) {
+        const index = data.members.findIndex(obj => obj.username === sessionStorage.username);
+        data.members.splice(index, 1);
+        putRequest(ctx,['appdata', `teams/${id}`, 'Kinvey', data], `#/catalog/${id}`);
     }
-    function updateNewInfo(ctx) {
-        console.log(ctx.params.id)    
-        const { id, name, comment } = ctx.params;
-        console.log(id, name, comment)
+    function updateTeamInfo(ctx, data, id) {
+        const { name, comment } = ctx.params;
+        data.name = name;
+        data.comment = comment;
+        putRequest(ctx,['appdata', `teams/${id}`, 'Kinvey', data], '#/catalog');
     }
     app.run();
 })()
