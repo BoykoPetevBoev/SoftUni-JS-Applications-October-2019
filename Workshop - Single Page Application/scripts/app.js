@@ -14,7 +14,9 @@ function getUserInfo(ctx) {
 }
 const templatesPaths = {
     header: './templates/header.hbs',
-    footer: './templates/footer.hbs'
+    footer: './templates/footer.hbs',
+    notFound: './templates/notFound.hbs',
+    foodInfo: './templates/foodInfo.hbs'
 };
 
 (() => {
@@ -26,8 +28,11 @@ const templatesPaths = {
             loadPage(ctx, './templates/main.hbs');
         });
         this.get('#/home', function (ctx) {
-            checkIfLoggedIn(ctx)
-            loadPage(ctx, './templates/main.hbs');
+            getUserInfo(ctx);
+            ctx.loggedIn
+                ? addNewInfo(ctx)
+                : loadPage(ctx, './templates/main.hbs')
+
         });
         this.get('#/login', function (ctx) {
             loadPage(ctx, './templates/signIn.hbs');
@@ -42,9 +47,42 @@ const templatesPaths = {
             sessionStorage.clear();
             ctx.redirect('#/home');
         });
+        this.get('#/home/:id', function (ctx) {
+            const id = ctx.params.id;
+            get('appdata', `recipes/${id}`, 'Kinvey')
+                .then(res => {
+                    console.log(res)
+                    ctx.meal = res.meal
+                    ctx.prepMethod = res.prepMethod
+                    ctx.likesCounter = res.likesCounter
+                    ctx.ingredients = res.ingredients
+                    ctx.foodImageURL = res.foodImageURL
+                    // ctx = res
+                    // ctx = res
+                    // ctx = res
+                })
+                .then(res => loadPage(ctx, './templates/ingredientsInfo.hbs'))
+                .catch(console.error)
+        })
         this.post('#/shareRecipe', function (ctx) {
-            const { meal, ingredients, prepMethood, description, foodImageURL, category } = ctx.params;
-            console.log(ctx.params, meal)
+            console.log(ctx)
+
+            const likesCounter = 0;
+            const ingredients = ctx.params.ingredients.split(' ');
+            const { meal, prepMethod, description, foodImageURL, category } = ctx.params;
+            const obj = {
+                likesCounter,
+                ingredients,
+                meal,
+                prepMethod,
+                description,
+                foodImageURL,
+                category
+            }
+            post('appdata', 'recipes', 'Kinvey', obj)
+                .then(console.log)
+                .then(res => ctx.redirect('#/home'))
+                .catch(console.error)
         })
         this.post('#/login', function (ctx) {
             const { password, username } = ctx.params;
@@ -63,19 +101,24 @@ const templatesPaths = {
             }
         })
     })
+    function addNewInfo(ctx) {
+        get('appdata', 'recipes', 'Kinvey')
+            .then(res => ctx.data = res.slice(0))
+            .then(res => loadPage(ctx, './templates/main.hbs'))
+            .catch(console.error)
+    }
     function postRequest(ctx, params) {
         post(...params)
             .then(res => saveUserInfo(res))
             .then(res => ctx.redirect('#/home'))
             .catch(console.error)
     }
-    function checkIfLoggedIn(ctx){
+    function checkIfLoggedIn(ctx) {
         getUserInfo(ctx);
-        console.log(ctx)
-        if(ctx.loggedIn){
+        if (ctx.loggedIn) {
             get('appdata', 'recipes', 'Kinvey')
-            .then(console.log)
-            .catch(console.error) 
+                .then(console.log)
+                .catch(console.error)
         }
     }
     function loadPage(ctx, path) {
