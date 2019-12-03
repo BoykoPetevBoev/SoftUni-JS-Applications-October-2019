@@ -5,25 +5,24 @@
 
                 <div class="team-front">
                     <img
-                        src="https://t3.ftcdn.net/jpg/01/18/84/52/240_F_118845283_n9uWnb81tg8cG7Rf9y3McWT1DT1ZKTDx.jpg" />
-                    <h3>Meal Name</h3>
-                    <p>Lean meats and poultry, fish... CATEGORY</p>
+                        src={{categoryImageURL}} />
+                    <h3>{{meal}}</h3>
+                    <p>{{category}}</p>
                 </div>
 
                 <div class="team-back">
                     <div class="back-side-info">
                         <h4>Ingredients</h4>
                         <ul>
-                            <li>First ingredients</li>
-                            <li>Second ingredients</li>
-                            <li>Third ingredients</li>
-                            <li>...</li>
+                            {{#each ingredients}}
+                            <li>{{this}}</li>
+                            {{/each}}
                         </ul>
-                        <a href="/#">View the recepie</a>
+                        <a href="#/home/{{_id}}">View the recepie</a>
                     </div>
 
                     <img class="foodImage"
-                        src="https://image.shutterstock.com/image-photo/roasted-dorado-fish-brussels-sprouts-260nw-435521527.jpg" />
+                        src= {{foodImageURL}} />
                 </div>
 
             </div>
