@@ -1,5 +1,9 @@
 <div id="notifications">
-    <div id="successBox" class="alert alert-success" role="alert">{Success Message...}</div>
+    {{!-- <div id="successBox" class="alert alert-success" role="alert">{Success Message...}</div> --}}
+    {{#if success}}
     <div id="loadingBox" class="alert alert-info" role="alert">Loading...</div>
-    <div id="errorBox" class="alert alert-danger" role="alert">{Error Message...}</div>
+    {{/if}}
+    {{#if error}}
+    <div id="errorBox" class="alert alert-danger">{{error}}</div>
+    {{/if}}
 </div>
