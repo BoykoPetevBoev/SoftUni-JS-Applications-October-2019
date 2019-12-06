@@ -45,7 +45,12 @@ function fetchRequest(path, endpoint, headers) {
     const url = `${domain}/${path}/${appKey}/${endpoint}`;
     return fetch(url, headers)
         .then(checkForErrors)
-        .then(data => data.json())
+        .then(data => {
+            if(data.status === 204){
+                return data;
+            }
+            return  data.json();
+        })
         .catch(console.error)
 }
 function checkForErrors(req) {
