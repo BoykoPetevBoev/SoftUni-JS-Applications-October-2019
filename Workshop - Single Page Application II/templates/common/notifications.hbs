@@ -1,0 +1,11 @@
+<div id="notifications">
+  {{#if loading}}
+    <div id="loadingBox" class="alert alert-info" role="alert">Loading...</div>
+  {{/if}}
+  {{#if success}}
+    <div id="successBox" class="alert alert-success" role="alert">{{success}}</div>
+  {{/if}} 
+  {{#if error}} 
+    <div id="errorBox" class="alert alert-danger" role="alert">{{error}}</div>
+  {{/if}}
+</div>
