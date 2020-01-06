@@ -1,4 +1,4 @@
-![SoftUni](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGv8lCeUR-D2A7hlAN4c9DNJJQsmW18ZbYzGpkc10SD6h6nvo0)
+![JS-Applications-October-2019](https://github.com/BoykoPetevBoev/JS-Applications-October-2019/blob/master/JSApplications.jpg)
 
 # JS Applications
 
