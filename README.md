@@ -31,3 +31,5 @@
 ![alt text](https://github.com/BoykoPetevBoev/JS-Applications-October-2019/blob/master/JSApplicationsCertificate.jpeg)
 
 ---
+
+- SoftUni <a href="https://softuni.bg">`https://softuni.bg`</a>
