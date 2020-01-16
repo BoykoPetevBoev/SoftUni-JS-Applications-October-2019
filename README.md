@@ -35,3 +35,7 @@
 - SoftUni <a href="https://softuni.bg">`https://softuni.bg`</a>
 - SoftUni Judge <a href="https://judge.softuni.bg">`https://judge.softuni.bg`</a>
 - Kinvey - Progress Software <a href="https://console.kinvey.com/apps">`https://console.kinvey.com/apps`</a>
+- Postman <a href="https://www.getpostman-beta.com">`https://www.getpostman-beta.com`</a>
+- Handlebars <a href="https://handlebarsjs.com">`https://handlebarsjs.com`</a>
+- Chai <a href="https://www.chaijs.com">`https://www.chaijs.com`</a>
+- Mocha <a href="https://mochajs.org">`https://mochajs.org`</a>
