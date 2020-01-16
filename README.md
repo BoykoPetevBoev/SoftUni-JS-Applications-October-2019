@@ -33,3 +33,5 @@
 ---
 
 - SoftUni <a href="https://softuni.bg">`https://softuni.bg`</a>
+- SoftUni Judge <a href="https://judge.softuni.bg">`https://judge.softuni.bg`</a>
+- Kinvey - Progress Software <a href="https://console.kinvey.com/apps">`https://console.kinvey.com/apps`</a>
