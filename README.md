@@ -1,5 +1,7 @@
 ![JS-Applications-October-2019](https://github.com/BoykoPetevBoev/JS-Applications-October-2019/blob/master/JSApplications.jpg)
 
+<img src="https://github.com/BoykoPetevBoev/JS-Applications-October-2019/blob/master/JSApplicationsCertificate.jpeg" height="1132" width="390">
+
 ## За курса
 
 В курса "**JS Applications**" ще научите какво сa **HTTP заявки** и как да ги използвате. Ще се запознаете с **REST Services**, какво са базите данни и как да работите с тях, какво означава **асинхронен код**, какво представляват **Templating** и **Routing**. Ще разберете каква е архитектурата на едно приложение и как да структурурате правилно апликациите си. На края на курса ще създадете собстен **Single Page App**, на който ще бъдете оценени.
@@ -25,10 +27,6 @@
 - Routing and Architecture
 - Design Patterns and Best Practices
 - WebPack
-
-## Сертификат
-
-![alt text](https://github.com/BoykoPetevBoev/JS-Applications-October-2019/blob/master/JSApplicationsCertificate.jpeg)
 
 ---
 ## Полезни линкове
