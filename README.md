@@ -1,6 +1,6 @@
 ![JS-Applications-October-2019](https://github.com/BoykoPetevBoev/JS-Applications-October-2019/blob/master/JSApplications.jpg)
 
-<img src="https://github.com/BoykoPetevBoev/JS-Applications-October-2019/blob/master/JSApplicationsCertificate.jpeg" height="1132" width="390">
+<img src="https://github.com/BoykoPetevBoev/JS-Applications-October-2019/blob/master/JSApplicationsCertificate.jpeg" height="1132">
 
 ## За курса
 
