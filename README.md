@@ -1,6 +1,8 @@
-![JS-Applications-October-2019](https://github.com/BoykoPetevBoev/JS-Applications-October-2019/blob/master/JSApplications.jpg)
+![JS-Applications-October-2019](https://github.com/BoykoPetevBoev/JS-Applications-October-2019/blob/master/_README/JSApplications.jpg)
 
-<img src="https://github.com/BoykoPetevBoev/JS-Applications-October-2019/blob/master/JSApplicationsCertificate.jpeg" height="1132">
+![JS-Applications-October-2019](https://github.com/BoykoPetevBoev/JS-Applications-October-2019/blob/master/_README/JS-Applications-Certificate.png)
+
+---
 
 ## За курса
 
@@ -28,7 +30,6 @@
 - Design Patterns and Best Practices
 - WebPack
 
----
 ## Полезни линкове
 
 - SoftUni 
